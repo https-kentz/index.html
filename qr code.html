@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator - Registration Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-section label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .input-section input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .help-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+
+        .qr-output {
+            display: none;
+            text-align: center;
+            margin-top: 30px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px dashed #007bff;
+        }
+
+        .qr-output.active {
+            display: block;
+        }
+
+        .qr-output h3 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        #qr-code {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .download-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .print-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .print-btn:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        .new-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .new-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .instructions {
+            background: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .instructions h4 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin: 10px 0;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .url-display {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            word-break: break-all;
+            font-family: monospace;
+            color: #007bff;
+            border: 1px solid #007bff;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .input-section,
+            .generate-btn,
+            .button-group,
+            .instructions {
+                display: none !important;
+            }
+
+            .qr-output {
+                border: none;
+                background: white;
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 QR Code Generator</h1>
+            <p>EJNHS Event Registration Form</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <label for="registration-url">Registration Form URL:</label>
+                <input 
+                    type="url" 
+                    id="registration-url" 
+                    placeholder="https://example.com/registration.html"
+                    value="https://ejnhs.com/registration.html"
+                >
+                <p class="help-text">
+                    💡 Enter the URL where your registration form is hosted. When users scan the QR code, they'll be directed to this page.
+                </p>
+            </div>
+
+            <button class="generate-btn" onclick="generateQR()">
+                🎯 Generate QR Code
+            </button>
+
+            <div class="qr-output" id="qr-output">
+                <h3>✅ Your QR Code is Ready!</h3>
+                <p style="margin-bottom: 20px; color: #666;">
+                    Scan this QR code to access the registration form
+                </p>
+                <div id="qr-code"></div>
+                <div class="url-display" id="url-display"></div>
+                
+                <div class="button-group">
+                    <button class="action-btn download-btn" onclick="downloadQR()">
+                        💾 Download QR Code
+                    </button>
+                    <button class="action-btn print-btn" onclick="printQR()">
+                        🖨️ Print QR Code
+                    </button>
+                    <button class="action-btn new-btn" onclick="generateNew()">
+                        🔄 Generate New
+                    </button>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <h4>📋 How to Use:</h4>
+                <ol>
+                    <li><strong>Upload Your Registration Form:</strong> First, upload your registration.html file to a web hosting service (GitHub Pages, Netlify, your school website, etc.)</li>
+                    <li><strong>Get the URL:</strong> Copy the full URL where your registration form is accessible</li>
+                    <li><strong>Enter URL Above:</strong> Paste the URL in the input field above</li>
+                    <li><strong>Generate QR Code:</strong> Click the "Generate QR Code" button</li>
+                    <li><strong>Download or Print:</strong> Save the QR code image or print it directly</li>
+                    <li><strong>Display QR Code:</strong> Place the QR code on posters, flyers, or digital screens</li>
+                    <li><strong>Users Scan:</strong> Students/staff scan the QR code with their phones and are directed to the registration form!</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        let currentQRCode = null;
+
+        function generateQR() {
+            const url = document.getElementById('registration-url').value.trim();
+            
+            if (!url) {
+                alert('Please enter a valid URL!');
+                return;
+            }
+
+            // Validate URL format
+            try {
+                new URL(url);
+            } catch (e) {
+                alert('Please enter a valid URL starting with http:// or https://');
+                return;
+            }
+
+            // Clear previous QR code
+            const qrContainer = document.getElementById('qr-code');
+            qrContainer.innerHTML = '';
+
+            // Generate new QR code
+            currentQRCode = new QRCode(qrContainer, {
+                text: url,
+                width: 300,
+                height: 300,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Display URL
+            document.getElementById('url-display').textContent = url;
+
+            // Show output section
+            document.getElementById('qr-output').classList.add('active');
+
+            // Scroll to QR code
+            document.getElementById('qr-output').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function downloadQR() {
+            const qrCanvas = document.querySelector('#qr-code canvas');
+            if (qrCanvas) {
+                const url = qrCanvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'EJNHS_Registration_QRCode.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                alert('✅ QR Code downloaded successfully!');
+            } else {
+                alert('❌ Please generate a QR code first!');
+            }
+        }
+
+        function printQR() {
+            const qrOutput = document.getElementById('qr-output');
+            if (qrOutput.classList.contains('active')) {
+                window.print();
+            } else {
+                alert('❌ Please generate a QR code first!');
+            }
+        }
+
+        function generateNew() {
+            document.getElementById('qr-output').classList.remove('active');
+            document.getElementById('registration-url').value = 'https://ejnhs.com/registration.html';
+            document.getElementById('registration-url').focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Allow Enter key to generate
+        document.getElementById('registration-url').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Schedule Calendar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin-bottom: 10px;
+        }
+
+        .add-event-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .add-event-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto;
+        }
+
+        .add-event-btn:hover {
+            background: #218838;
+        }
+
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .month-nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #0056b3;
+        }
+
+        .current-month {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .calendar {
+            padding: 20px;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            color: #495057;
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .day {
+            min-height: 100px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 8px;
+            background: white;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .day:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .day.other-month {
+            background: #f8f9fa;
+            color: #adb5bd;
+        }
+
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+
+        .day.today .day-number {
+            background: #007bff;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .event-dot {
+            width: 100%;
+            padding: 4px 6px;
+            margin: 2px 0;
+            border-radius: 3px;
+            font-size: 11px;
+            color: white;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .event-avr {
+            background: #667eea;
+        }
+
+        .event-court {
+            background: #28a745;
+        }
+
+        .event-lab {
+            background: #fd7e14;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            background: #007bff;
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 28px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .event-detail {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .event-detail h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .event-detail p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .event-time {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            .calendar-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .legend {
+                justify-content: center;
+            }
+
+            .days {
+                gap: 5px;
+            }
+
+            .day {
+                min-height: 80px;
+                padding: 5px;
+            }
+
+            .event-dot {
+                font-size: 9px;
+                padding: 2px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Event Schedule Calendar</h1>
+            <p>EJNHS Event Management System</p>
+        </div>
+
+        <div class="add-event-section">
+            <button class="add-event-btn" onclick="openAddEventModal()">
+                <span>➕</span>
+                <span>Add New Event</span>
+            </button>
+        </div>
+
+        <div class="calendar-controls">
+            <div class="month-nav">
+                <button class="nav-btn" onclick="previousMonth()">← Previous</button>
+                <div class="current-month" id="currentMonth"></div>
+                <button class="nav-btn" onclick="nextMonth()">Next →</button>
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color event-avr"></div>
+                    <span>AVR</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color event-court"></div>
+                    <span>Covered Court</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color event-lab"></div>
+                    <span>Computer Lab</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="calendar">
+            <div class="weekdays">
+                <div class="weekday">Sun</div>
+                <div class="weekday">Mon</div>
+                <div class="weekday">Tue</div>
+                <div class="weekday">Wed</div>
+                <div class="weekday">Thu</div>
+                <div class="weekday">Fri</div>
+                <div class="weekday">Sat</div>
+            </div>
+            <div class="days" id="calendarDays"></div>
+        </div>
+    </div>
+
+    <!-- Event Details Modal -->
+    <div class="modal" id="eventModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalDate"></h2>
+                <button class="close-btn" onclick="closeModal('eventModal')">×</button>
+            </div>
+            <div class="modal-body" id="modalEvents"></div>
+        </div>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div class="modal" id="addEventModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Event</h2>
+                <button class="close-btn" onclick="closeModal('addEventModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="eventForm" onsubmit="addEvent(event)">
+                    <div class="form-group">
+                        <label for="eventTitle">Event Title *</label>
+                        <input type="text" id="eventTitle" required placeholder="Enter event title">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="eventDate">Date *</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="eventTime">Time *</label>
+                        <input type="time" id="eventTime" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="eventLocation">Location *</label>
+                        <select id="eventLocation" required>
+                            <option value="">Select a location</option>
+                            <option value="avr">Audio Visual Room</option>
+                            <option value="court">Covered Court</option>
+                            <option value="lab">Computer Laboratory</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addEventModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Event</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize events array with sample data
+        let events = [
+            { id: 1, date: '2024-02-15', time: '12:00 PM', title: 'Feeding Program', location: 'avr', locationName: 'Audio Visual Room' },
+            { id: 2, date: '2024-02-28', time: '2:30 PM', title: 'Sports Festival Opening', location: 'court', locationName: 'Covered Court' },
+            { id: 3, date: '2024-02-29', time: '11:00 AM', title: 'Coding Workshop', location: 'lab', locationName: 'Computer Laboratory' }
+        ];
+
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        let nextId = 4;
+
+        function renderCalendar() {
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const prevLastDay = new Date(currentYear, currentMonth, 0);
+            const firstDayIndex = firstDay.getDay();
+            const lastDayIndex = lastDay.getDay();
+            const nextDays = 7 - lastDayIndex - 1;
+
+            const months = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+
+            document.getElementById('currentMonth').textContent = `${months[currentMonth]} ${currentYear}`;
+
+            let days = '';
+
+            // Previous month days
+            for (let x = firstDayIndex; x > 0; x--) {
+                days += `<div class="day other-month">
+                    <div class="day-number">${prevLastDay.getDate() - x + 1}</div>
+                </div>`;
+            }
+
+            // Current month days
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const dayEvents = events.filter(e => e.date === dateStr);
+                
+                const isToday = i === currentDate.getDate() && 
+                               currentMonth === currentDate.getMonth() && 
+                               currentYear === currentDate.getFullYear();
+
+                let eventsHtml = '';
+                dayEvents.forEach(event => {
+                    eventsHtml += `<div class="event-dot event-${event.location}">${event.title}</div>`;
+                });
+
+                days += `<div class="day ${isToday ? 'today' : ''}" onclick="showDayEvents('${dateStr}')">
+                    <div class="day-number">${i}</div>
+                    ${eventsHtml}
+                </div>`;
+            }
+
+            // Next month days
+            for (let j = 1; j <= nextDays; j++) {
+                days += `<div class="day other-month">
+                    <div class="day-number">${j}</div>
+                </div>`;
+            }
+
+            document.getElementById('calendarDays').innerHTML = days;
+        }
+
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+
+        function showDayEvents(dateStr) {
+            const dayEvents = events.filter(e => e.date === dateStr);
+            
+            if (dayEvents.length === 0) return;
+
+            const date = new Date(dateStr + 'T00:00:00');
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('modalDate').textContent = date.toLocaleDateString('en-US', options);
+
+            let eventsHtml = '';
+            dayEvents.forEach(event => {
+                eventsHtml += `
+                    <div class="event-detail" style="border-color: ${
+                        event.location === 'avr' ? '#667eea' : 
+                        event.location === 'court' ? '#28a745' : '#fd7e14'
+                    }">
+                        <h3>${event.title}</h3>
+                        <p class="event-time">⏰ ${event.time}</p>
+                        <p>📍 ${event.locationName}</p>
+                        <button class="delete-btn" onclick="deleteEvent(${event.id})">🗑️ Delete</button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('modalEvents').innerHTML = eventsHtml;
+            document.getElementById('eventModal').classList.add('active');
+        }
+
+        function openAddEventModal() {
+            document.getElementById('addEventModal').classList.add('active');
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('eventDate').value = today;
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            if (modalId === 'addEventModal') {
+                document.getElementById('eventForm').reset();
+            }
+        }
+
+        function addEvent(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('eventTitle').value;
+            const date = document.getElementById('eventDate').value;
+            const timeInput = document.getElementById('eventTime').value;
+            const location = document.getElementById('eventLocation').value;
+            
+            // Convert 24-hour time to 12-hour format
+            const [hours, minutes] = timeInput.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            const time = `${hour12}:${minutes} ${ampm}`;
+            
+            // Get location name
+            const locationNames = {
+                'avr': 'Audio Visual Room',
+                'court': 'Covered Court',
+                'lab': 'Computer Laboratory'
+            };
+            
+            const newEvent = {
+                id: nextId++,
+                date: date,
+                time: time,
+                title: title,
+                location: location,
+                locationName: locationNames[location]
+            };
+            
+            events.push(newEvent);
+            
+            closeModal('addEventModal');
+            renderCalendar();
+            
+            // Show success message
+            alert('Event added successfully!');
+        }
+
+        function deleteEvent(eventId) {
+            if (confirm('Are you sure you want to delete this event?')) {
+                events = events.filter(e => e.id !== eventId);
+                closeModal('eventModal');
+                renderCalendar();
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('eventModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal('eventModal');
+            }
+        });
+
+        document.getElementById('addEventModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal('addEventModal');
+            }
+        });
+
+        // Initial render
+        renderCalendar();
+    </script>
+</body>
+</html>

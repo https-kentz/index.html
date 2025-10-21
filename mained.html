@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #333;
+
+            background-image: url('login2.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            
+        }
+        header {
+            background: #007bff;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        nav ul li {
+            margin: 0;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        nav a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .auth-btn {
+            background: #fff;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .auth-btn:hover {
+            background: #f0f0f0;
+            color: #0056b3;
+        }
+        .hero {
+            background: #f4f4f4;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0 0.5rem;
+            display: inline-block;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        section {
+            padding: 3rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .events {
+            background: #f8f9fa;
+        }
+        .events h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .event {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 900px;
+            margin: 2rem auto;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .modal-header {
+            background: #007bff;
+            color: white;
+            padding: 2rem;
+            border-radius: 10px 10px 0 0;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .location-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            color: #555;
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .location-features {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .location-features h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+
+        .location-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .location-features li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .location-features li:last-child {
+            border-bottom: none;
+        }
+
+        .location-features li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+            section {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        
+
+        @media (max-width: 600px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            nav ul {
+                flex-direction: column;
+            }
+            nav ul li {
+                margin: 0.25rem 0;
+            }
+            .modal-content {
+                margin: 1rem;
+            }
+            .image-gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="file:///C:/Users/Admin/Desktop/CCS/group%204/Capstone/sched.html">Schedule</a></li>
+                <li><a href="#about">About Us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="home" class="hero">
+        <h1>Event Website of EJNHS</h1>
+        <p>Discover and join amazing events in our school.</p>
+        <a href="file:///C:/Users/Admin/Desktop/CCS/group%204/Capstone/calendar%20and%20registration.html" class="btn">Get Started</a>
+    </section>
+
+    <section id="events" class="events">
+        <h2>Event Places</h2>
+        <div class="event">
+            <h3>Audio Visual Room</h3>
+            <p>Learn about new technologies.</p>
+            <button class="btn" onclick="showLocationDetails('avr')">Details</button>
+        </div>
+        <div class="event">
+            <h3>Covered Court</h3>
+            <p>Enjoy live music.</p>
+            <button class="btn" onclick="showLocationDetails('court')">Details</button>
+        </div>
+        <div class="event">
+            <h3>Computer Laboratory</h3>
+            <p>Programming.</p>
+            <button class="btn" onclick="showLocationDetails('lab')">Details</button>
+    </div>
+    </section>
+
+    <div>
+        <section id="about" class="about">
+        <h2>About Us</h2>
+
+        <h3>Contact</h3>
+        <p>+63-968-232-2955</p>
+
+        <h3>Address</h3>
+        <p>Pingkian Road, Barangay Pasong Tamo, Quezon City</p>
+        </section>
+    </div>
+    
+
+    <!-- Modal -->
+    <div class="modal" id="locationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="location-description" id="modalDescription"></div>
+                
+                <div class="image-gallery" id="imageGallery"></div>
+
+                <div class="location-features" id="locationFeatures"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const locationData = {
+            avr: {
+                title: "Audio Visual Room (AVR)",
+                description: "The Audio Visual Room is a air-conditioned facility with a modern multimedia technology. This facility commonly use when there's a presentations, seminars, film screenings and event programs. This venue is perfect for educational and entertainment events because it has advanced audio-visual equipment and comfortable seating arrangements.",
+                images: [
+                    "avr1.jpg",
+                    "avr2.jpg",
+                    "avr3.jpg"
+                ],
+                features: [
+                    "High-definition projector and screen",
+                    "Surround sound system",
+                    "Seating capacity: 100 people",
+                    "Air-conditioned environment",
+                    "Wireless microphone system",
+                    "Stage platform for presenters"
+                ]
+            },
+            court: {
+                title: "Covered Court",
+                description: "The Covered Court is our spacious venue in EJNHS because this is the heart of physical activities and large gatherings. This facility is multi-purpose by providing sample space for graduations, pageants, intramurals, assemblies and celebrations. The features of this facility it has a proper ventilation and lighting for day and evening events.",
+                images: [
+                    "court1.jpg",
+                    "court2.jpg",
+                    "court3.jpg"
+                ],
+                features: [
+                    "Full basketball court dimensions",
+                    "Weather-protected venue",
+                    "Capacity: 300+ people",
+                    "Stage setup available",
+                    "LED lighting system",
+                    "Bleacher seating",
+                    "Sound system ready"
+                ]
+            },
+            lab: {
+                title: "Computer Laboratory",
+                description: "The Computer Laboratory is an air-conditioned room with modern computers and internet connection. This facility is usually used for computer classes, research, programming, and digital activities. This venue is perfect for learning and training because it has advanced computer equipment and comfortable seating for students.",
+                images: [
+                    "comlab1.jpg",
+                    "comlab2.jpg",
+                    "comlab3.jpg"
+                ],
+                features: [
+                    "80 desktop computers",
+                    "High-speed internet connection",
+                    "Air-conditioned facility",
+                    "Printer is available",
+                    "Individual workstations",
+                    "Teacher's monitoring system"
+                ]
+            }
+        };
+
+        function showLocationDetails(location) {
+            const data = locationData[location];
+            
+            document.getElementById('modalTitle').textContent = data.title;
+            document.getElementById('modalDescription').textContent = data.description;
+            
+            // Create image gallery
+            const gallery = document.getElementById('imageGallery');
+            gallery.innerHTML = '';
+            data.images.forEach((img, index) => {
+                const div = document.createElement('div');
+                div.className = 'gallery-item';
+                
+                // Check if using placeholder or custom image
+                if (img.includes('placeholder')) {
+                    div.innerHTML = `<div class="image-placeholder">Image ${index + 1}<br>Replace with your photo</div>`;
+                } else {
+                    div.innerHTML = `<img src="${img}" alt="${data.title} - Image ${index + 1}">`;
+                }
+                
+                gallery.appendChild(div);
+            });
+            
+            // Create features list
+            const features = document.getElementById('locationFeatures');
+            features.innerHTML = '<h3>Features & Amenities</h3><ul>' + 
+                data.features.map(f => `<li>${f}</li>`).join('') + 
+                '</ul>';
+            
+            document.getElementById('locationModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('locationModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('locationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
